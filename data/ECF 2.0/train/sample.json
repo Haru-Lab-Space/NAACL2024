@@ -1,0 +1,40 @@
+
+{
+    "conversation_ID": 1127,
+    "conversation": [
+        {
+            "utterance_ID": 1,
+            "text": "All right ! I found one that fits !",
+            "speaker": "Chandler",
+            "emotion": "joy"
+        },
+        {
+            "utterance_ID": 2,
+            "text": "Well you know what they say , the 23rd time\u2019s the charm .",
+            "speaker": "Rachel",
+            "emotion": "neutral"
+        },
+        {
+            "utterance_ID": 3,
+            "text": "Whose is it ?",
+            "speaker": "Chandler",
+            "emotion": "joy"
+        },
+        {
+            "utterance_ID": 4,
+            "text": "Oh does it matter ? ! All that matters is that you look so handsome .",
+            "speaker": "Rachel",
+            "emotion": "sadness"
+        }
+    ],
+    "emotion-cause_pairs": [
+        [
+            "1_joy",
+            "1_I found one that fits !"
+        ],
+        [
+            "4_sadness",
+            "4_you look so handsome ."
+        ]
+    ]
+},

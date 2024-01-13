@@ -1,0 +1,368 @@
+[
+  {
+    "conversation_ID": 83,
+    "conversation": {
+      "1": {
+        "text": "Will you pick one , just pick one ! Here , how about that one ?",
+        "speaker": "Joey",
+        "emotion": "anger",
+        "casual text": [
+          "Will you pick one",
+          "Will you pick one , just pick one !",
+          "Here , how about that one"
+        ],
+        "casual span": [
+          [
+            1,
+            0,
+            4
+          ],
+          [
+            1,
+            0,
+            8
+          ],
+          [
+            1,
+            9,
+            15
+          ]
+        ],
+        "casual": [
+          "Will you pick one , just pick one"
+        ]
+      },
+      "2": {
+        "text": "That is patio furniture !",
+        "speaker": "Chandler",
+        "emotion": "surprise",
+        "casual text": [
+          "That is patio furniture !",
+          "That is patio furniture"
+        ],
+        "casual span": [
+          [
+            2,
+            0,
+            4
+          ],
+          [
+            2,
+            0,
+            4
+          ]
+        ],
+        "casual": [
+          "Here , how about that one",
+          "That is patio furniture"
+        ]
+      },
+      "3": {
+        "text": "So what , like people are gonna come in and think , \" Uh ... oh , I am outside again ? \"",
+        "speaker": "Joey",
+        "emotion": "anger",
+        "casual text": [
+          "So what , like people are gonna come in and think",
+          "like people are gonna come in and think",
+          "So what , like people are gonna come in",
+          "oh , I am outside again",
+          "So what , like people are gonna come in and think , \" Uh ..."
+        ],
+        "casual span": [
+          [
+            3,
+            0,
+            11
+          ],
+          [
+            3,
+            3,
+            11
+          ],
+          [
+            3,
+            0,
+            9
+          ],
+          [
+            3,
+            15,
+            21
+          ],
+          [
+            3,
+            0,
+            14
+          ]
+        ],
+        "casual": [
+          "Will you pick one , just pick one ! Here , how about that one",
+          "That is patio furniture"
+        ]
+      },
+      "4": {
+        "text": "What about the birds ?",
+        "speaker": "Chandler",
+        "emotion": "neutral",
+        "casual text": [
+          "What about the birds ?",
+          "What about the birds"
+        ],
+        "casual span": [
+          [
+            4,
+            0,
+            4
+          ],
+          [
+            4,
+            0,
+            4
+          ]
+        ],
+        "casual": []
+      },
+      "5": {
+        "text": "I do not know , birds just do not say , \" Hello , sit here , eat something . \"",
+        "speaker": "Joey",
+        "emotion": "neutral",
+        "casual text": [
+          "I do not know",
+          "I do not know , birds just do not say",
+          "I do not know , birds just do not say , Hello , sit here",
+          "birds just do not say",
+          "birds just do not say , Hello , sit here",
+          "Hello , sit here",
+          "I do not know , birds just do not say , \" Hello , sit here , eat something"
+        ],
+        "casual span": [
+          [
+            5,
+            0,
+            4
+          ],
+          [
+            5,
+            0,
+            10
+          ],
+          [
+            5,
+            0,
+            15
+          ],
+          [
+            5,
+            5,
+            10
+          ],
+          [
+            5,
+            5,
+            15
+          ],
+          [
+            5,
+            12,
+            16
+          ],
+          [
+            5,
+            0,
+            19
+          ]
+        ],
+        "casual": []
+      },
+      "6": {
+        "text": "You pick one .",
+        "speaker": "Chandler",
+        "emotion": "neutral",
+        "casual text": [
+          "You pick one .",
+          "You pick one"
+        ],
+        "casual span": [
+          [
+            6,
+            0,
+            3
+          ],
+          [
+            6,
+            0,
+            3
+          ]
+        ],
+        "casual": []
+      },
+      "7": {
+        "text": "All right , how about the ladybugs ?",
+        "speaker": "Joey",
+        "emotion": "neutral",
+        "casual text": [
+          "All right , how about the ladybugs ?",
+          "All right , how about the ladybugs"
+        ],
+        "casual span": [
+          [
+            7,
+            0,
+            7
+          ],
+          [
+            7,
+            0,
+            7
+          ]
+        ],
+        "casual": []
+      },
+      "8": {
+        "text": "Oh , so , forget about the birds , but big red insects suggest fine dining !",
+        "speaker": "Chandler",
+        "emotion": "anger",
+        "casual text": [
+          "Oh , so , forget about the birds",
+          "Oh , so , forget about the birds , but big red insects suggest fine dining !",
+          ", forget about the birds ,",
+          "big red insects suggest fine dining",
+          "big red insects"
+        ],
+        "casual span": [
+          [
+            8,
+            0,
+            8
+          ],
+          [
+            8,
+            0,
+            16
+          ],
+          [
+            8,
+            4,
+            8
+          ],
+          [
+            8,
+            10,
+            16
+          ],
+          [
+            8,
+            10,
+            13
+          ]
+        ],
+        "casual": [
+          "What about the birds",
+          "I do not know , birds just do not say , \" Hello , sit here , eat something",
+          "how about the ladybugs",
+          "forget about the birds , but big red insects suggest fine dining"
+        ]
+      },
+      "9": {
+        "text": "Fine , you want to get the birds , get the birds !",
+        "speaker": "Joey",
+        "emotion": "anger",
+        "casual text": [
+          "Fine , you want to get the birds",
+          "Fine , you want to get the birds , get the birds !",
+          "you want to get the birds",
+          "you want to get the birds , get the birds !",
+          "Fine , you want to get the birds , get the birds"
+        ],
+        "casual span": [
+          [
+            9,
+            0,
+            8
+          ],
+          [
+            9,
+            0,
+            12
+          ],
+          [
+            9,
+            2,
+            8
+          ],
+          [
+            9,
+            2,
+            12
+          ],
+          [
+            9,
+            0,
+            12
+          ]
+        ],
+        "casual": [
+          "how about the ladybugs",
+          "forget about the birds , but big red insects suggest fine dining"
+        ]
+      },
+      "10": {
+        "text": "Not like that , I will not !",
+        "speaker": "Chandler",
+        "emotion": "sadness",
+        "casual text": [
+          "Not like that",
+          "I will not !",
+          "Not like that , I will not"
+        ],
+        "casual span": [
+          [
+            10,
+            0,
+            3
+          ],
+          [
+            10,
+            4,
+            7
+          ],
+          [
+            10,
+            0,
+            7
+          ]
+        ],
+        "casual": [
+          "What about the birds",
+          "I do not know , birds just do not say , \" Hello , sit here , eat something",
+          "Fine , you want to get the birds , get the birds"
+        ]
+      },
+      "11": {
+        "text": "Kip would have liked the birds !",
+        "speaker": "Chandler",
+        "emotion": "sadness",
+        "casual text": [
+          "Kip would have liked the birds !",
+          "Kip would have liked the birds"
+        ],
+        "casual span": [
+          [
+            11,
+            0,
+            6
+          ],
+          [
+            11,
+            0,
+            6
+          ]
+        ],
+        "casual": [
+          "What about the birds",
+          "I do not know , birds just do not say , \" Hello , sit here , eat something"
+        ]
+      }
+    }
+  }
+]
