@@ -208,9 +208,6 @@
         "casual_feedforward.3.weight",
         "casual_feedforward.3.bias"
     ],
-    "candidate_num": 8,
-    "token_size": 256,
-    "overlap_threshold": 0.05,
     "coordinating conjunction": [
         "for",
         "and",
@@ -238,10 +235,10 @@
         "sadness": 5,
         "surprise": 6
     },
-    "save folder": "/media/s24gb1/90a7e21c-edf4-4782-a0eb-731b73c521c2/DUC/NAACL/data",
-    "save_checkpoint_dir": "/media/s24gb1/90a7e21c-edf4-4782-a0eb-731b73c521c2/DUC/NAACL/data/checkpoint",
-    "dataset folder": "/media/s24gb1/90a7e21c-edf4-4782-a0eb-731b73c521c2/DUC/NAACL/data/ECF 2.0/",
-    "submit path": "/media/s24gb1/90a7e21c-edf4-4782-a0eb-731b73c521c2/DUC/NAACL/data/ECF 2.0/trial/submit.json",
+    "save folder": "data",
+    "save_checkpoint_dir": "data/checkpoint",
+    "dataset folder": "data/ECF 2.0/",
+    "submit path": "data/ECF 2.0/trial/submit.json",
     "encoder_name": "bert-base-uncased",
     "tokenizer_name": "bert-base-uncased",
     "main_part_name": "bert-base-uncased",
@@ -256,6 +253,9 @@
         "proportional F1",
         "avg proportional F1"
     ],
+    "candidate_num": 8,
+    "token_size": 256,
+    "overlap_threshold": 0.2,
     "bos_token_id": 101,
     "eos_token_id": 102,
     "padding": "max_length",
@@ -270,8 +270,8 @@
     "patience": 5,
     "min_delta": 0,
     "candidate num": 8,
-    "train": "/media/s24gb1/90a7e21c-edf4-4782-a0eb-731b73c521c2/DUC/NAACL/data/ECF 2.0/train/train.json",
-    "test": "/media/s24gb1/90a7e21c-edf4-4782-a0eb-731b73c521c2/DUC/NAACL/data/ECF 2.0/test/test.json",
+    "train": "data/ECF 2.0/train/train.json",
+    "test": "data/ECF 2.0/test/test.json",
     "replace tokens": [
         "⁇"
     ],

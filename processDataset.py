@@ -82,9 +82,9 @@ class ProcessDataset(nn.Module):
                     span_label = [0] * len(casual_span_sample)
                     for span in casual[j]:
                         for k in range(len(casual_span_sample)):
-                            if self.overlap(span, casual_text_sample[k], text[casual_span_sample[k][0]-1]):
-                                span_label[k] = 1
-                                match += 1
+                            utter_ID = casual_span_sample[k][0]
+                            span_label[k] = self.overlap(span, casual_text_sample[k], text[utter_ID-1])
+                            match += span_label[k]
 
                     paragraph = " ".join(text[start_ids:end_ids])
 
@@ -161,6 +161,11 @@ class ProcessDataset(nn.Module):
                     for k in range(start_ids, end_ids):
                         casual_text_sample.extend(casual_text[k])
                         casual_span_sample.extend(casual_span[k])
+                        assert len(casual_text_sample) == len(casual_span_sample)
+
+                    # print("===== k: "+str(k))
+                    # print("===== casual_span_sample: "+str(casual_span_sample))
+                    # print("===== casual_text_sample: "+str(casual_text_sample))
                     if len(casual_span_sample)>max_span_label:
                         max_span_label = len(casual_span_sample)
                     if len(casual_span_sample) > 32:
@@ -215,19 +220,24 @@ class ProcessDataset(nn.Module):
             for j in range(len(data[i]['conversation'])):
                 index_of_emotion_utterance = data[i]['conversation'][j]['utterance_ID']
                 text = data[i]['conversation'][j]['text']
+                
+                text = text.replace('\u2019', "'")
                 speaker = data[i]['conversation'][j]['speaker']
+                casual_text = self.augmentModel.augment_sentence(text)
+                casual_span = []
+                for k in range(len(casual_text)):
+                    span = self.span(text, casual_text[k])
+                    if span != None:
+                        ss, se, _ = span
+                        # casual_text.append(casual_text[k])
+                        # casual_span_pool.append((ss, se))
+                        casual_span.append((ss, se))
+                if len(casual_text) > max_casual_span:
+                    max_casual_span = len(casual_text)
+                casual_span = self.casual_convert(index_of_emotion_utterance, casual_span)
 
                 if "emotion" in data[i]['conversation'][j].keys():
                     emotion = data[i]['conversation'][j]['emotion']
-                    # print("=====Sentence======")
-                    casual_text, casual_span = self.augmentModel.augment_sentence(text)
-                    # if len(casual_text) > 32:
-                    #     print("conversation_ID: "+str(conversation_ID))
-                    #     print("index_of_emotion_utterance: "+str(index_of_emotion_utterance))
-                    #     print("len: "+str(len(casual_text)))
-                    if len(casual_text) > max_casual_span:
-                        max_casual_span = len(casual_text)
-                    casual_span = self.casual_convert(index_of_emotion_utterance, casual_span)
                     new_utter = {
                         "text": text,
                         "speaker": speaker,
@@ -237,10 +247,6 @@ class ProcessDataset(nn.Module):
                         "casual": []
                     }
                 else:
-                    casual_text, casual_span = self.augmentModel.augment_sentence(text)
-                    if len(casual_text) > max_casual_span:
-                        max_casual_span = len(casual_text)
-                    casual_span = self.casual_convert(index_of_emotion_utterance, casual_span)
                     new_utter = {
                         "text": text,
                         "speaker": speaker,
@@ -269,7 +275,7 @@ class ProcessDataset(nn.Module):
                     utter_id, emotion_category = data[i]['emotion-cause_pairs'][j][0].split("_")
                     casual_utter_id, casual = data[i]['emotion-cause_pairs'][j][1].split("_")
                     utter_id = int(utter_id)
-                    casual = self.remove_punctuation(casual)
+                    # casual = self.remove_punctuation(casual)
                     # if "casual" not in new_conversation[utter_id].keys():
                     #     new_conversation[utter_id]["casual"] = [casual]
                     # else:
@@ -289,22 +295,23 @@ class ProcessDataset(nn.Module):
         # print("Max casual span conversation: "+str(len(casual_span_pool)))
         # print("Matching casual span: "+str(m_count/n_count))
         return new_data
-    def overlap(self, real_text, process_text, text):
-        print("text: "+text)
-        print("real_text: "+real_text)
-        print("process_text: "+process_text)
-        real = self.span(text, real_text)
+    def overlap(self, text, sub_text, utter_text):
+        # print("text: "+text)
+        # print("sub_text: "+sub_text)
+        # print("utter_text: "+utter_text)
+        span_text = self.span(utter_text, text)
         if real == None:
             return 0
-        start_real_span_text,end_real_span_text,_ = real
-        start_span_text, end_span_text,_ = self.span(text, process_text)
-        difference_span = np.abs(start_real_span_text - start_span_text) + np.abs(end_real_span_text - end_span_text)
-        span = end_real_span_text - start_real_span_text
-        if difference_span/span < self.overlap_threshold:
-            return 1
+        start_span_text,end_span_text,_ = text
+        start_sub_span_text, end_sub_span_text,_ = self.span(utter_text, sub_text)
+        duplicate_span = np.abs(start_span_text - start_sub_span_text) + np.abs(end_span_text - end_sub_span_text)
+        span = end_span_text - start_span_text
+        if duplicate_span/span > self.overlap_threshold:
+            return duplicate_span/span
         else:
             return 0
     def span(self, text, sub_text, s_ind=0):
+        sub_text = self.remove_punctuation(sub_text)
         new_text = text.split()
         if text == sub_text:
             ss = s_ind
@@ -322,12 +329,12 @@ class ProcessDataset(nn.Module):
                         # print("new_text[i + j]: "+str(new_text[i + j] ))
                         for punctuation in self.punctuation_error:
 
-                            if new_sub_text[j]+punctuation  == new_text[i + j]:
+                            if new_sub_text[j]+punctuation == new_text[i + j]:
                                 # print(new_sub_text)
                                 new_sub_text[j] = new_sub_text[j]+punctuation 
                                 ss = i
                                 se = i+j
-                                # print(new_sub_text)
+                                print(new_sub_text)
                                 return s_ind+ss, s_ind+se+1, ' '.join(new_sub_text)
                     check = False
                     break
@@ -339,6 +346,12 @@ class ProcessDataset(nn.Module):
                 se = temp
                 return s_ind+ss, s_ind+se+1, sub_text
     def matching_cause_pairs(self, cause_pairs, casual_span, annotated_cause_pairs):
+        # print("cause_pairs: "+str(cause_pairs))
+        # print("casual_span: "+str(casual_span))
+        # print("annotated_cause_pairs: "+str(annotated_cause_pairs))
+        # print("cause_pairs: "+str(len(cause_pairs)))
+        # print("casual_span: "+str(len(casual_span)))
+        # print("annotated_cause_pairs: "+str(len(annotated_cause_pairs)))
         m = 0
         for i in range(len(annotated_cause_pairs)):
             # print("Macthing")

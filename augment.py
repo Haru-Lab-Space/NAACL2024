@@ -42,18 +42,6 @@ class AugmentData(nn.Module):
         assert len(sentence_pool) == len(span_sentence_pool)
         
         return sentence_pool, span_sentence_pool
-    def remove_short_sentence(self, pool, span_pool):
-        # print(pool)
-        # print(span_pool)
-        sentence_pool = []
-        span_sentence_pool = []
-        for i in range(len(pool)):
-            words = pool[i].split()
-            if len(words) > 2:
-                sentence_pool.append(pool[i])
-                span_sentence_pool.append(span_pool[i])
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
 
     def augment_sentence(self, text, test=False):
         doc = self.nlp(text)
@@ -65,95 +53,79 @@ class AugmentData(nn.Module):
         span_sentence_pool = []
 
         text = text.replace('\u2019', "'")
-
-        ss, se, subtext = self.span(text, text)
         # unique_list_of_lists, span_list_of_lists = self.split_sentence(text)
         # sentence_pool.extend(unique_list_of_lists)
         # span_sentence_pool.extend(span_list_of_lists)
-        spacy_pool, spacy_span_pool = self.spacy(text)
+        spacy_pool = self.spacy(text)
         sentence_pool.extend(spacy_pool)
-        span_sentence_pool.extend(spacy_span_pool)
         if test:
             print("spacy:"+str(sentence_pool))
-        # print("sentence_pool: "+str(sentence_pool))
-        # print("span_sentence_pool: "+str(span_sentence_pool))
-        # print("len entence_pool: "+str(len(sentence_pool)))
-        # print("len span_sentence_pool: "+str(len(span_sentence_pool)))
-        # sentence_pool, span_sentence_pool = self.remove_duplicate(sentence_pool, span_sentence_pool)
-        sentence_pool, span_sentence_pool = self.remove_short_sentence(sentence_pool, span_sentence_pool)
-        if test:
-            print("remove_short_sentence:"+str(sentence_pool))
-
-        sentence_pool.append(subtext)
-        span_sentence_pool.append((ss, se))
-        sentence_pool, span_sentence_pool = self.list_remove_punctuation(sentence_pool, span_sentence_pool)
-        if test:
-            print("list_remove_punctuation:"+str(sentence_pool))
-        sentence_pool, span_sentence_pool = self.remove_list_start_by_coordinating_conjunction(sentence_pool, span_sentence_pool)
+        # sentence_pool = self.remove_short_sentence(sentence_pool)
+        # if test:
+        #     print("remove_short_sentence:"+str(sentence_pool))
+        sentence_pool = self.remove_list_start_by_coordinating_conjunction(sentence_pool)
         if test:
             print("remove_list_start_by_coordinating_conjunction:"+str(sentence_pool))
-        sentence_pool, span_sentence_pool = self.remove_duplicate(sentence_pool, span_sentence_pool)
+        sentence_pool = self.remove_duplicate(sentence_pool)
         if test:
             print("remove_duplicate:"+str(sentence_pool))
-        sentence_pool, span_sentence_pool = self.remove_unclear_content(sentence_pool, span_sentence_pool)
+        sentence_pool = self.remove_unclear_content(sentence_pool)
         if test:
             print("remove_unclear_content:"+str(sentence_pool))
-        sentence_pool, span_sentence_pool = self.remove_end_by_unclear_sentence(sentence_pool, span_sentence_pool)
+        sentence_pool = self.remove_end_by_unclear_sentence(sentence_pool)
         if test:
             print("remove_end_by_unclear_sentence:"+str(sentence_pool))
-        sentence_pool, span_sentence_pool = self.remove_dup_words(sentence_pool, span_sentence_pool)
+        sentence_pool = self.remove_dup_words(sentence_pool)
         if test:
             print("remove_dup_words:"+str(sentence_pool))
-        sentence_pool, span_sentence_pool = self.remove_dup_sentences(sentence_pool, span_sentence_pool)
+        sentence_pool = self.remove_dup_sentences(sentence_pool)
         if test:
             print("remove_dup_sentences:"+str(sentence_pool))
-        sentence_pool, span_sentence_pool = self.remove_unclear_last_sentence(sentence_pool, span_sentence_pool)
+        sentence_pool = self.remove_unclear_last_sentence(sentence_pool)
         if test:
             print("remove_unclear_last_sentence:"+str(sentence_pool))
-        sentence_pool, span_sentence_pool = self.remove_unclear_first_sentence(sentence_pool, span_sentence_pool)
+        sentence_pool = self.remove_unclear_first_sentence(sentence_pool)
         if test:
             print("remove_unclear_first_sentence:"+str(sentence_pool))
-        sentence_pool, span_sentence_pool = self.remove_interjections_in_the_end(sentence_pool, span_sentence_pool)
+        sentence_pool = self.remove_interjections_in_the_end(sentence_pool)
         if test:
             print("remove_interjections_in_the_end:"+str(sentence_pool))
-        sentence_pool, span_sentence_pool = self.remove_more_adj(sentence_pool, span_sentence_pool)
+        sentence_pool = self.remove_more_adj(sentence_pool)
         if test:
             print("remove_more_adj:"+str(sentence_pool))
-        sentence_pool, span_sentence_pool = self.remove_more_intj(sentence_pool, span_sentence_pool)
+        sentence_pool = self.remove_more_intj(sentence_pool)
         if test:
             print("remove_more_intj:"+str(sentence_pool))
         # sentence_pool, span_sentence_pool = self.remove_transition_sentence(sentence_pool, span_sentence_pool)
 
         # sentence_pool, span_sentence_pool = self.list_span(sentence_pool, text)
 
-        sentence_pool, span_sentence_pool = self.fit_candidate_num(sentence_pool, span_sentence_pool)
-
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
-    def fit_candidate_num(self, pool, span_pool):
-        m = min(len(pool), self.candidate_num)
+        return sentence_pool
+    def remove_short_sentence(self, pool):
+        # print(pool)
+        # print(span_pool)
+        sentence_pool = []
+        for i in range(len(pool)):
+            words = pool[i].split()
+            if len(words) > 2:
+                sentence_pool.append(pool[i])
+        return sentence_pool
 
         return pool[len(pool) - m:], span_pool[len(pool) - m:]
-    def remove_list_start_by_coordinating_conjunction(self, pool, span_pool):
+    def remove_list_start_by_coordinating_conjunction(self, pool):
         sentence_pool = []
-        span_sentence_pool = []
         for i in range(len(pool)):
-            span = self.remove_start_by_coordinating_conjunction(pool[i], span_pool[i])
-            if span == None:
+            sentence = self.remove_start_by_coordinating_conjunction(pool[i])
+            if sentence == None:
                 continue
-            sentence, span_sentence = span
             sentence_pool.append(sentence)
-            span_sentence_pool.append(span_sentence)
-        # if len(pool) != len(sentence_pool):
-        #     print(str(len(pool))+"    "+str(len(sentence_pool)))
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        return sentence_pool
 
-    def remove_start_by_coordinating_conjunction(self, sentence, span_sentence):
+    def remove_start_by_coordinating_conjunction(self, sentence):
         words = sentence.split()
         if words[0] in self.coordinating_conjunction:
             return None
-        return sentence, span_sentence
+        return sentence
     def split_sentence(self, text): 
         input_texts: List[str] = [text]
         # print("input_texts =: "+str(input_texts))
@@ -175,12 +147,8 @@ class AugmentData(nn.Module):
         unique_set = set()
         unique_list_of_lists = [x for x in unique_list_of_lists if tuple(x) not in unique_set and not unique_set.add(tuple(x))]
 
-        span_list_of_lists = []
-        for item in unique_list_of_lists:
-            ss, se, _ = self.span(input_texts[0], item)
-            span_list_of_lists.append((ss, se))
 
-        return unique_list_of_lists, span_list_of_lists
+        return unique_list_of_lists
     def replace_token(self, text_list):
         new_text_list = []
         # print("text list replace: "+str(text_list))
@@ -195,97 +163,59 @@ class AugmentData(nn.Module):
         # print("new text list replace: "+str(new_text_list))
         return new_text_list
         
-    def split_coordinating_conjunction(self, doc, text):
-        # print("text: "+str(text))
+    def split_coordinating_conjunction(self, text):
+        doc = self.nlp(text)
         sentence_pool = []
-        span_sentence_pool = []
 
         ss = 0
         words = []
         text_list = text.split()
-        # print("text_list: "+str(text_list))
-        # for i in range(len(text_list)):
-        #     if doc[i].pos_ in ["CCONJ", ]:
-        #         se = i+1
-        #         sentence_pool.append(" ".join(words))
-        #         span_sentence_pool.append((ss, se))
-        #         words = []
-        #         ss = i+1
-        #     else:
-        #         words.append(text_list[i])
         for i in range(len(text_list)):
             # print("text_list: "+str(text_list[i]))
             if text_list[i] in self.coordinating_conjunction:
                 # print(text_list[i])
                 se = i
                 sentence_pool.append(" ".join(words))
-                span_sentence_pool.append((ss, se))
                 words = []
                 ss = i+1
             else:
                 words.append(text_list[i])
-        # print("words: "+str(words))
         span = " ".join(words)
-        # print("span: "+str(span))
-        new_span = self.remove_punctuation(span)
-        # print("new_span: "+str(new_span))
-        ss, se, new_span = self.span(text, new_span)
-        sentence_pool.append(new_span)
-        span_sentence_pool.append((ss, se))
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        sentence_pool.append(span)
+        return sentence_pool
     def split_comma(self, text):
         sentence_pool = []
-        span_sentence_pool = []
 
+        delimiters = ["?", "!", ".", ","]
         ss = 0
         words = []
         text_list = text.split()
         for i in range(len(text_list)):
-            if text_list[i] == ',':
+            if text_list[i] in delimiters:
+                words.append(text_list[i])
                 se = i+1
                 span = " ".join(words)
-                # print("span: "+str(span))
-                new_span = self.remove_punctuation(span)
-                # print("new_span: "+str(new_span))
-                ss, se, new_span = self.span(text, new_span)
-                sentence_pool.append(new_span)
-                span_sentence_pool.append((ss, se))
+                sentence_pool.append(span)
                 words = []
                 ss = i+1
             else:
                 words.append(text_list[i])
         
         span = " ".join(words)
-        new_span = self.remove_punctuation(span)
-        ss, se, new_span = self.span(text, new_span)
         sentence_pool.append(span)
-        span_sentence_pool.append((ss, se))
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
-    def concat_comma(self, sentence_pool, span_sentence_pool):
+        return sentence_pool
+    def concat_comma(self, sentence_pool):
         # print(sentence_pool)
         # print("=============================concat_sentennce=======================")
         new_sentence_pool = []
-        new_span_sentence_pool = []
         for i in range(len(sentence_pool)):
             # print("============================ sentence pool ========================")
             for j in range(i, len(sentence_pool)):
                 # print("============================ span sentence pool ========================")
-                ss = span_sentence_pool[i][0]
-                se = span_sentence_pool[j][1]
-                span = ' , '.join(sentence_pool[i:j+1])
-                new_span = self.remove_punctuation(span)
-                ss, se, new_span = self.span(span, new_span, ss)
-                # print("span:"+span)
-                # print("ss:"+str(ss))
-                # print("se:"+str(se))
-                # print("new_span:"+str(new_span))
+                span = ' '.join(sentence_pool[i:j+1])
                 new_sentence_pool.append(span)
-                new_span_sentence_pool.append((ss, se))
         # print("=============================concat_sentennce=======================")
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return new_sentence_pool, new_span_sentence_pool
+        return new_sentence_pool
         
     def read_json(self, path):
         with open(path, 'r') as json_file:
@@ -302,23 +232,16 @@ class AugmentData(nn.Module):
         # Remove punctuation at the beginning and end of the string
         cleaned_text = text.strip(punctuation_chars).strip().strip(punctuation_chars).strip().strip(punctuation_chars).strip()
         return cleaned_text
-    def list_remove_punctuation(self, pool, span_pool):
+    def list_remove_punctuation(self, pool):
         sentence_pool = []
-        span_sentence_pool = []
         for i in range(len(pool)):   
             # print("pool[i]: "+str(pool[i]))
             new_span = self.remove_punctuation(pool[i])
             # print("new_span: "+str(new_span))
             if len(new_span) == 0:
                 continue
-            # span = 
-            # print("new_span: "+str(new_span))
-
-            ss, se, new_new_span = self.span(pool[i], new_span, span_pool[i][0])
             sentence_pool.append(pool[i])
-            span_sentence_pool.append((ss, se))
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        return sentence_pool
     def span(self, text, sub_text, s_ind=0):
         new_text = text.split()
         if text == sub_text:
@@ -371,38 +294,35 @@ class AugmentData(nn.Module):
 
     def spacy(self, text):
         sentence_pool = []
-        span_sentence_pool = []
-        doc = self.nlp(text)
 
-        comma_pool, comma_span_pool = self.split_comma(text)
-        comma_pool, comma_span_pool = self.concat_comma(comma_pool, comma_span_pool)
-        comma_pool, comma_span_pool = self.remove_duplicate(comma_pool, comma_span_pool)
+        comma_pool = self.split_comma(text)
+        comma_pool = self.concat_comma(comma_pool)
         # pron_chunks_pool, pron_chunks_span_pool = self.pron_chunks(text)
         # pron_chunks_pool, pron_chunks_span_pool = self.concat_sentennce(pron_chunks_pool, pron_chunks_span_pool)
         # pron_chunks_pool, pron_chunks_span_pool = self.remove_duplicate(pron_chunks_pool, pron_chunks_span_pool)
         # print("comma")
         # print("comma_pool : "+str(len(comma_pool)))
         # print("comma_span_pool : "+str(len(comma_span_pool)))
-        coordinating_conjunction_pool, coordinating_conjunction_span_pool = self.split_coordinating_conjunction(doc, text)
+        coordinating_conjunction_pool = self.split_coordinating_conjunction(text)
         # print("split_coordinating_conjunction")
         # print("coordinating_conjunction_pool : "+str(coordinating_conjunction_pool))
         # print("coordinating_conjunction_span_pool : "+str(coordinating_conjunction_span_pool))
         # print("comma_pool : "+str(len(coordinating_conjunction_pool)))
         # print("comma_span_pool : "+str(len(coordinating_conjunction_span_pool)))
-        auxiliary_coordinating_conjunction_pool, auxiliary_coordinating_conjunction_span_pool = self.list_auxiliary_spacy(coordinating_conjunction_pool, coordinating_conjunction_span_pool)
+        auxiliary_coordinating_conjunction_pool = self.list_auxiliary_spacy(coordinating_conjunction_pool)
         # print("split_auxiliary_coordinating_conjunction")
         # print("auxiliary_coordinating_conjunction_pool : "+str(auxiliary_coordinating_conjunction_pool))
         # print("auxiliary_coordinating_conjunction_span_pool : "+str(auxiliary_coordinating_conjunction_span_pool))
         # print("comma_pool : "+str(len(auxiliary_coordinating_conjunction_pool)))
         # print("comma_span_pool : "+str(len(auxiliary_coordinating_conjunction_span_pool)))
-        noun_chunks_pool, noun_chunks_span_pool=self.noun_chunks(text)
+        noun_chunks_pool=self.noun_chunks(text)
         # noun_chunks_pool, noun_chunks_span_pool=self.noun_chunks(text)
         # print("noun_chunks")
         # print("noun_chunks_pool : "+str(noun_chunks_pool))
         # print("noun_chunks_span_pool : "+str(noun_chunks_span_pool))
         # print("comma_pool : "+str(len(noun_chunks_pool)))
         # print("comma_span_pool : "+str(len(noun_chunks_span_pool)))
-        sentence_spacy_pool, sentence_spacy_span_pool = self.sentence_spacy(doc)
+        sentence_spacy_pool = self.sentence_spacy(text)
         # print("sentence_spacy")
         # print("sentence_spacy_pool : "+str(sentence_spacy_pool))
         # print("sentence_spacy_span_pool : "+str(sentence_spacy_span_pool))
@@ -410,46 +330,36 @@ class AugmentData(nn.Module):
         # print("comma_span_pool : "+str(len(sentence_spacy_span_pool)))
  
         sentence_pool.extend(comma_pool)
-        span_sentence_pool.extend(comma_span_pool)
         # sentence_pool.extend(pron_chunks_pool)
-        # span_sentence_pool.extend(pron_chunks_span_pool)
         sentence_pool.extend(coordinating_conjunction_pool)
-        span_sentence_pool.extend(coordinating_conjunction_span_pool)
         sentence_pool.extend(auxiliary_coordinating_conjunction_pool)
-        span_sentence_pool.extend(auxiliary_coordinating_conjunction_span_pool)
         sentence_pool.extend(noun_chunks_pool)
-        span_sentence_pool.extend(noun_chunks_span_pool)
         sentence_pool.extend(sentence_spacy_pool)
-        span_sentence_pool.extend(sentence_spacy_span_pool)
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
-    def list_auxiliary_spacy(self, text_list, span_pool):
+
+        new_sentence_pool = []
+        for p in sentence_pool:
+            if len(p) > 0:
+                new_sentence_pool.append(p)
+
+        return new_sentence_pool
+    def list_auxiliary_spacy(self, text_list):
         sentence_pool = []
-        span_sentence_pool = []
         for i in range(len(text_list)):
-            doc = self.nlp(text_list[i])
-            sentence_spacy_pool, sentence_spacy_span_pool = self.sentence_spacy(doc, span_pool[i][0])
+            sentence_spacy_pool = self.sentence_spacy(text_list[i])
             # print("list_auxiliary_spacy")
             # print("sentence_spacy_pool : "+str(sentence_spacy_pool))
             # print("sentence_spacy_span_pool : "+str(sentence_spacy_span_pool))
         sentence_pool.extend(sentence_spacy_pool)
-        span_sentence_pool.extend(sentence_spacy_span_pool)
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        return sentence_pool
 
 
     def auxiliary_spacy(self, text):
         sentence_pool = []
-        span_sentence_pool = []
         doc = self.nlp(text)
-        sentence_spacy_pool, sentence_spacy_span_pool = self.sentence_spacy(doc)
+        sentence_spacy_pool = self.sentence_spacy(doc)
         sentence_pool.extend(sentence_spacy_pool)
-        span_sentence_pool.extend(sentence_spacy_span_pool)
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        return sentence_pool
     
-    
-    # def list_pron_chunks(self, text_list, text, ids):
 
     def pron_chunks(self, text):
         sentence_pool = []
@@ -462,99 +372,60 @@ class AugmentData(nn.Module):
             if doc[i].pos_ == 'PRON':
                 se = i+1
                 span = ' '.join(words)
-                # print("span: "+span)
-                span = self.remove_punctuation(span)
-                new_span = self.span(text, span, ss)
-                if span == None:
-                    continue
-                ss, se, new_span = new_span
                 sentence_pool.append(span)
-                span_sentence_pool.append((ss, se))
                 words = [doc[i].text]
             else:
                 words.append(doc[i].text)
                 
 
         span = " ".join(words)
-        new_span = self.remove_punctuation(span)
-        new_span = self.span(text, new_span)
-        if span == None:
-            assert len(sentence_pool) == len(span_sentence_pool)
-            return sentence_pool, span_sentence_pool
-        ss, se, new_span = new_span
         sentence_pool.append(span)
-        span_sentence_pool.append((ss, se))
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        return sentence_pool
 
     def noun_chunks(self, text):
         doc = self.nlp(text)
-
         temp = [chunk.text for chunk in doc.noun_chunks]
         PRON = [token.lemma_ for token in doc if token.pos_ == "PRON"]
         VERB = [token.lemma_ for token in doc if token.pos_ == "VERB"]
         NOUN = [token.lemma_ for token in doc if token.pos_ == "NOUN"]
         PROPN = [token.lemma_ for token in doc if token.pos_ == "PROPN"]
         values_to_remove = PRON + VERB + NOUN + PROPN
+        # values_to_remove = PROPN + PRON + NOUN
         temp = list(filter(lambda x: x not in values_to_remove, temp))
         pool = temp
         new_pool = []
-        span_pool = []
         for subtext in pool:
-            span = self.span(text, subtext)
-            if span == None:
-                continue
-            ss, se, new_sub_text = span
             new_pool.append(subtext)
-            span_pool.append((ss, se))
-        assert len(new_pool) == len(span_pool)
-        return new_pool, span_pool
-    def sentence_spacy(self, doc, ids=0):
+        return new_pool
+    def sentence_spacy(self, text):
+        doc = self.nlp(text)
         sentence_pool = []
-        span_sentence_pool = []
         for sent in doc.sents:
             sentence_pool.append(str(sent))
-            span_sentence_pool.append((sent.start+ids, sent.end+ids))
-        new_sentence_pool, new_span_sentence_pool = self.concat_sentennce(sentence_pool, span_sentence_pool)
-
-        assert len(new_sentence_pool) == len(new_span_sentence_pool)
-        return new_sentence_pool, new_span_sentence_pool
-    def concat_sentennce(self, sentence_pool, span_sentence_pool):
+        new_sentence_pool = self.concat_sentennce(sentence_pool)
+        return new_sentence_pool
+    def concat_sentennce(self, sentence_pool):
         # print(sentence_pool)
         # print("=============================concat_sentennce=======================")
         new_sentence_pool = []
-        new_span_sentence_pool = []
         for i in range(len(sentence_pool)):
             # print("============================ sentence pool ========================")
             for j in range(i, len(sentence_pool)):
                 # print("============================ span sentence pool ========================")
-                ss = span_sentence_pool[i][0]
-                se = span_sentence_pool[j][1]
                 span = ' '.join(sentence_pool[i:j+1])
-                new_span = self.remove_punctuation(span)
-                ss, se, new_span = self.span(span, new_span, ss)
-                # print("span:"+span)
-                # print("ss:"+str(ss))
-                # print("se:"+str(se))
-                # print("new_span:"+str(new_span))
                 new_sentence_pool.append(span)
-                new_span_sentence_pool.append((ss, se))
         # print("=============================concat_sentennce=======================")
-        assert len(new_sentence_pool) == len(new_span_sentence_pool)
-        return new_sentence_pool, new_span_sentence_pool
-    def remove_duplicate(self, sentence_pool, span_sentence_pool):
+        return new_sentence_pool
+    def remove_duplicate(self, sentence_pool):
         dup_index = [1] * len(sentence_pool)
         for i in range(len(sentence_pool)-1):
             for j in range(i+1, len(sentence_pool)):
                 if sentence_pool[i] == sentence_pool[j]:
                     dup_index[j] = 0
         sentence_pool = [sentence_pool[index] for index in range(len(dup_index)) if dup_index[index]]
-        span_sentence_pool = [span_sentence_pool[index] for index in range(len(dup_index)) if dup_index[index]]
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
-    def remove_unclear_content(self, pool, span_pool):
+        return sentence_pool
+    def remove_unclear_content(self, pool):
         sentence_pool=[]
-        span_sentence_pool=[]
         for i in range(len(pool)):
             words = pool[i].split()
             doc = self.nlp(pool[i])
@@ -569,15 +440,14 @@ class AugmentData(nn.Module):
                     continue
             if (words[len(words)-1] not in self.unclear_eos_words) and (words[0] not in self.unclear_bos_words):
                 sentence_pool.append(pool[i])
-                span_sentence_pool.append(span_pool[i])
 
         pool = sentence_pool
-        span_pool = span_sentence_pool
-        # print(pool)
         index_list = [1] * len(pool)
         for i in range(len(pool)):
             # words = pool[i].split()
             doc = self.nlp(pool[i])
+            # lll = [(doc[i].pos_, doc[i].lemma_) for i in range(len(doc))]
+            # print(lll)
             strin = pool[i]
             for j in range(i+1, len(pool)):
                 rep_strin = pool[j]
@@ -619,6 +489,7 @@ class AugmentData(nn.Module):
             adj_num = 0
             pron_num = 0
             adv_num = 0
+            noun_num = 0
             for token in doc:
                 # print(rep_token.pos_)
                 if token.pos_ == 'PRON':
@@ -629,23 +500,25 @@ class AugmentData(nn.Module):
                     verb_num+=1
                 if token.pos_ == 'ADV':
                     adv_num+=1
-
-            if pron_num == adv_num and verb_num == 0 and adj_num==0:
-                    index_list[i] = 0
+                if token.pos_ == 'NOUN':
+                    noun_num+=1
+            # print("pron_num: "+str(pron_num))
+            # print("adj_num: "+str(adj_num))
+            # print("verb_num: "+str(verb_num))
+            # print("adv_num: "+str(adv_num))
+            if pron_num == adv_num and verb_num == 0 and adj_num==0 and noun_num == 0:
+                index_list[i] = 0
 
 
         # print(index_list)
         sentence_pool = []
-        span_sentence_pool = []
 
         for i in range(len(index_list)):
             if index_list[i] == 1:
                 sentence_pool.append(pool[i])
-                span_sentence_pool.append(span_pool[i])
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        return sentence_pool
 
-    def remove_end_by_unclear_sentence(self, pool, span_pool):
+    def remove_end_by_unclear_sentence(self, pool):
         index_list = [1] * len(pool)
 
         for i in range(len(index_list)):
@@ -655,18 +528,14 @@ class AugmentData(nn.Module):
                     break
 
         sentence_pool = []
-        span_sentence_pool = []
 
         for i in range(len(index_list)):
             if index_list[i] == 1:
                 sentence_pool.append(pool[i])
-                span_sentence_pool.append(span_pool[i])
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        return sentence_pool
 
-    def remove_dup_words(self, pool, span_pool):
+    def remove_dup_words(self, pool):
         sentence_pool=[]
-        span_sentence_pool=[]
         index_list = [1] * len(pool)
         for i in range(len(pool)-1):
             strin = pool[i]
@@ -689,18 +558,14 @@ class AugmentData(nn.Module):
 
 
         sentence_pool = []
-        span_sentence_pool = []
 
         for i in range(len(index_list)):
             if index_list[i] == 1:
                 sentence_pool.append(pool[i])
-                span_sentence_pool.append(span_pool[i])
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        return sentence_pool
 
-    def remove_dup_sentences(self, pool, span_pool):
+    def remove_dup_sentences(self, pool):
         sentence_pool=[]
-        span_sentence_pool=[]
         index_list = [1] * len(pool)
         for i in range(len(pool)-1):
             strin = pool[i]
@@ -723,16 +588,13 @@ class AugmentData(nn.Module):
 
 
         sentence_pool = []
-        span_sentence_pool = []
 
         for i in range(len(index_list)):
             if index_list[i] == 1:
                 sentence_pool.append(pool[i])
-                span_sentence_pool.append(span_pool[i])
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        return sentence_pool
 
-    def remove_unclear_first_sentence(self, pool, span_pool):
+    def remove_unclear_first_sentence(self, pool):
         index_list = [1] * len(pool)
         delimiters = " ? ", " ! ", " . ", " , "
         regex_pattern = '|'.join(map(re.escape, delimiters))
@@ -769,16 +631,13 @@ class AugmentData(nn.Module):
                 index_list[i] = 0
 
         sentence_pool = []
-        span_sentence_pool = []
 
         for i in range(len(index_list)):
             if index_list[i] == 1:
                 sentence_pool.append(pool[i])
-                span_sentence_pool.append(span_pool[i])
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        return sentence_pool
 
-    def remove_unclear_last_sentence(self, pool, span_pool):
+    def remove_unclear_last_sentence(self, pool):
         index_list = [1] * len(pool)
         # print(pool)
         delimiters = " ? ", " ! ", " . "
@@ -819,15 +678,12 @@ class AugmentData(nn.Module):
                 index_list[i] = 0
 
         sentence_pool = []
-        span_sentence_pool = []
 
         for i in range(len(index_list)):
             if index_list[i] == 1:
                 sentence_pool.append(pool[i])
-                span_sentence_pool.append(span_pool[i])
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
-    def remove_transition_sentence(self, pool, span_pool):
+        return sentence_pool
+    def remove_transition_sentence(self, pool):
         index_list = [1] * len(pool)
 
         for i in range(len(pool)-1):
@@ -856,15 +712,12 @@ class AugmentData(nn.Module):
                     #     index_list[i] = 0
 
         sentence_pool = []
-        span_sentence_pool = []
 
         for i in range(len(index_list)):
             if index_list[i] == 1:
                 sentence_pool.append(pool[i])
-                span_sentence_pool.append(span_pool[i])
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
-    def remove_interjections_in_the_end(self, pool, span_pool):
+        return sentence_pool
+    def remove_interjections_in_the_end(self, pool):
         index_list = [1] * len(pool)
 
         for i in range(len(index_list)):
@@ -873,54 +726,16 @@ class AugmentData(nn.Module):
                 index_list[i] = 0
 
         sentence_pool = []
-        span_sentence_pool = []
-
         for i in range(len(index_list)):
             if index_list[i] == 1:
                 sentence_pool.append(pool[i])
-                span_sentence_pool.append(span_pool[i])
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        return sentence_pool
 
-    def remove_more_adj(self, pool, span_pool):
+    def remove_more_adj(self, pool):
         index_list = [1] * len(pool)
 
         for i in range(len(index_list)):
             doc = self.nlp(pool[i])
-            
-            # rep_verb_num = 0
-            # rep_adj_num = 0
-            # rep_noun_num = 0
-            # rep_adv_num = 0
-            # rep_intj_num = 0
-            # rep_pron_num = 0
-            # rep_aux_num = 0
-            # for rep_token in doc:
-            #     # print(rep_token.pos_)
-            #     if rep_token.pos_ == 'PRON':
-            #         rep_pron_num+=1
-            #     if rep_token.pos_ == 'NOUN':
-            #         rep_noun_num+=1
-            #     if rep_token.pos_ == 'ADJ':
-            #         rep_adj_num+=1
-            #     if rep_token.pos_ == 'VERB':
-            #         rep_verb_num+=1
-            #     if rep_token.pos_ == 'ADV':
-            #         rep_adv_num+=1
-            #     if rep_token.pos_ == 'INTJ':
-            #         rep_intj_num+=1
-            #     if rep_token.pos_ == 'AUX':
-            #         rep_aux_num+=1
-            # # print("rep_adj_num: "+str(rep_adj_num))
-            # # print("len: "+str(len(doc)))
-            # sum_num = rep_verb_num + rep_adj_num + rep_noun_num + rep_adv_num + rep_intj_num + rep_pron_num
-            # if rep_adj_num > 0.7*sum_num and rep_adj_num > 1:
-            #     index_list[i] = 0
-
-            # if rep_pron_num == 0 and rep_noun_num == 0 and rep_adj_num>0 and rep_verb_num>0:
-            #     index_list[i] = 0
-            # if rep_pron_num == 0 and rep_noun_num == 1 and rep_adj_num>0 and rep_aux_num==0:
-            #     index_list[i] = 0
 
             rep_adj_num = 0
             rep_adv_num = 0
@@ -946,55 +761,18 @@ class AugmentData(nn.Module):
 
 
         sentence_pool = []
-        span_sentence_pool = []
 
         for i in range(len(index_list)):
             if index_list[i] == 1:
                 sentence_pool.append(pool[i])
-                span_sentence_pool.append(span_pool[i])
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        return sentence_pool
 
-    def remove_more_intj(self, pool, span_pool):
+    def remove_more_intj(self, pool):
         index_list = [1] * len(pool)
 
         for i in range(len(index_list)):
             doc = self.nlp(pool[i])
-            
-            # rep_verb_num = 0
-            # rep_adj_num = 0
-            # rep_noun_num = 0
-            # rep_adv_num = 0
-            # rep_intj_num = 0
-            # rep_pron_num = 0
-            # rep_aux_num = 0
-            # for rep_token in doc:
-            #     # print(rep_token.pos_)
-            #     if rep_token.pos_ == 'PRON':
-            #         rep_pron_num+=1
-            #     if rep_token.pos_ == 'NOUN':
-            #         rep_noun_num+=1
-            #     if rep_token.pos_ == 'ADJ':
-            #         rep_adj_num+=1
-            #     if rep_token.pos_ == 'VERB':
-            #         rep_verb_num+=1
-            #     if rep_token.pos_ == 'ADV':
-            #         rep_adv_num+=1
-            #     if rep_token.pos_ == 'INTJ':
-            #         rep_intj_num+=1
-            #     if rep_token.pos_ == 'AUX':
-            #         rep_aux_num+=1
-            # # print("rep_adj_num: "+str(rep_adj_num))
-            # # print("len: "+str(len(doc)))
-            # sum_num = rep_verb_num + rep_adj_num + rep_noun_num + rep_adv_num + rep_intj_num + rep_pron_num
-            # if rep_adj_num > 0.7*sum_num and rep_adj_num > 1:
-            #     index_list[i] = 0
-
-            # if rep_pron_num == 0 and rep_noun_num == 0 and rep_adj_num>0 and rep_verb_num>0:
-            #     index_list[i] = 0
-            # if rep_pron_num == 0 and rep_noun_num == 1 and rep_adj_num>0 and rep_aux_num==0:
-            #     index_list[i] = 0
-
+    
             rep_adj_num = 0
             rep_adv_num = 0
             rep_intj_num = 0
@@ -1014,11 +792,8 @@ class AugmentData(nn.Module):
 
 
         sentence_pool = []
-        span_sentence_pool = []
 
         for i in range(len(index_list)):
             if index_list[i] == 1:
                 sentence_pool.append(pool[i])
-                span_sentence_pool.append(span_pool[i])
-        assert len(sentence_pool) == len(span_sentence_pool)
-        return sentence_pool, span_sentence_pool
+        return sentence_pool
