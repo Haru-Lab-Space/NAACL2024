@@ -4,7 +4,7 @@
     "submit path": "../data/ECF 2.0/trial/submit.json",
     "encoder_name": "bert-base-uncased",
     "decoder_name": "gpt2",
-    "tokenizer_name": "bert-base-uncased",
+    "tokenizer_name": "gpt2",
     "id2label": {
         "0": "anger",
         "1": "disgust",
@@ -26,12 +26,13 @@
     "bos_token_id": 101,
     "eos_token_id": 102,
     "padding": "max_length",
-    "left_padding": 5,
+    "left_padding": 3,
     "right_padding": 2,
     "batch_size": 8,
     "device": "cuda",
     "embedding_dim": 768,
     "hidden_size": 768,
+    "feedforward_dim": 1024,
     "vocab_size": 768,
     "paragraph_max_length": 256,
     "text_max_length": 256,
@@ -78,8 +79,8 @@
     "casual_head_layers": [
         "casual_feedforward.0.weight",
         "casual_feedforward.0.bias",
-        "casual_fc.weight",
-        "casual_fc.bias"
+        "casual_feedforward.2.weight",
+        "casual_feedforward.2.bias"
     ],
     "encoder_layers": [
         "embeddings.word_embeddings.weight",
